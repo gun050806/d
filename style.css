@@ -394,12 +394,6 @@ a {
 }
 
 /* ===== 원생·관리 페이지 ===== */
-.member {
-  background: var(--gray);
-}
-.member .header {
-  background: #fff;
-}
 .header__member {
   margin-left: auto;
   display: flex;
