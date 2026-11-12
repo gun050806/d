@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리 | 더 로직 고등영어</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preload" href="fonts/Pretendard-Regular.subset.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="member">
+  <header class="header">
+    <div class="wrap header__inner">
+      <a href="index.html" class="brand">
+        <span class="script">The Logic</span>
+        <span class="brand__ko">관리</span>
+      </a>
+      <div class="header__member">
+        <a href="my.html">내 페이지</a>
+        <button class="link-btn" id="logout" hidden>로그아웃</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="wrap">
+      <div id="gate"><p class="muted">불러오는 중…</p></div>
+
+      <div id="admin" hidden>
+        <div class="tabs tabs--wide" role="tablist">
+          <button class="tab is-active" data-tab="users">회원 <span class="count" id="pending-count"></span></button>
+          <button class="tab" data-tab="materials">자료</button>
+          <button class="tab" data-tab="records">성적·과제</button>
+          <button class="tab" data-tab="posts">학원 소식</button>
+        </div>
+
+        <!-- 회원 -->
+        <section data-panel="users">
+          <div class="section-box">
+            <h2>승인 대기</h2>
+            <div id="pending-list"></div>
+          </div>
+          <div class="section-box">
+            <h2>원생</h2>
+            <div id="student-list"></div>
+          </div>
+        </section>
+
+        <!-- 자료 -->
+        <section data-panel="materials" hidden>
+          <form class="section-box form" id="material-form" novalidate>
+            <h2>자료 올리기</h2>
+            <label class="field"><span>제목</span><input name="title" maxlength="80" required /></label>
+            <div class="field-row">
+              <label class="field"><span>대상</span>
+                <select name="target"><option>전체</option><option>고1</option><option>고2</option><option>고3</option></select>
+              </label>
+              <label class="field"><span>날짜</span><input type="date" name="date" required /></label>
+            </div>
+            <label class="field"><span>링크 (구글 드라이브 공유 링크 등)</span><input type="url" name="url" placeholder="https://" required /></label>
+            <label class="field"><span>설명 (선택)</span><input name="desc" maxlength="200" /></label>
+            <p class="msg" data-msg></p>
+            <button class="btn btn--dark" type="submit">올리기</button>
+          </form>
+          <div class="section-box">
+            <h2>올린 자료</h2>
+            <div id="material-list"></div>
+          </div>
+        </section>
+
+        <!-- 성적·과제 -->
+        <section data-panel="records" hidden>
+          <form class="section-box form" id="record-form" novalidate>
+            <h2>성적 · 과제 입력</h2>
+            <div class="field-row">
+              <label class="field"><span>학생</span><select name="uid" required></select></label>
+              <label class="field"><span>구분</span>
+                <select name="kind"><option>시험</option><option>과제</option><option>단어</option><option>기타</option></select>
+              </label>
+            </div>
+            <label class="field"><span>내용</span><input name="title" maxlength="80" placeholder="예: 1학기 중간고사, 3주차 단어 테스트" required /></label>
+            <div class="field-row">
+              <label class="field"><span>결과</span><input name="score" maxlength="30" placeholder="예: 95점, 완료, 1등급" required /></label>
+              <label class="field"><span>날짜</span><input type="date" name="date" required /></label>
+            </div>
+            <label class="field"><span>메모 (선택, 학생에게 보여요)</span><input name="memo" maxlength="200" /></label>
+            <p class="msg" data-msg></p>
+            <button class="btn btn--dark" type="submit">저장</button>
+          </form>
+          <div class="section-box">
+            <div class="section-box__head">
+              <h2>입력한 기록</h2>
+              <select id="record-filter" aria-label="학생별 보기"></select>
+            </div>
+            <div id="record-list"></div>
+          </div>
+        </section>
+
+        <!-- 학원 소식 -->
+        <section data-panel="posts" hidden>
+          <form class="section-box form" id="post-form" novalidate>
+            <h2>학원 소식 쓰기</h2>
+            <p class="form__help">여기 쓴 소식은 홈페이지 "학원 소식" 맨 위에 바로 보여요.</p>
+            <div class="field-row">
+              <label class="field"><span>분류</span>
+                <select name="tag"><option>공지</option><option>결과</option></select>
+              </label>
+              <label class="field"><span>날짜</span><input type="date" name="date" required /></label>
+            </div>
+            <label class="field"><span>제목</span><input name="title" maxlength="100" required /></label>
+            <label class="field"><span>링크 (선택, 블로그 글 주소)</span><input type="url" name="url" placeholder="https://" /></label>
+            <p class="msg" data-msg></p>
+            <button class="btn btn--dark" type="submit">올리기</button>
+          </form>
+          <div class="section-box">
+            <h2>올린 소식</h2>
+            <div id="post-list"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import {
+      ready, auth, db, signOut, collection, getDocs, doc, addDoc, updateDoc, deleteDoc,
+      serverTimestamp, getProfile, currentUser, esc, safeUrl, today, errMsg, NOT_READY_HTML
+    } from './js/fb.js';
+
+    const gate = document.getElementById('gate');
+    let users = [];
+
+    const byDateDesc = (a, b) => String(b.date || '').localeCompare(String(a.date || ''));
+    const nameOf = (uid) => (users.find((u) => u.id === uid) || {}).name || '(삭제된 학생)';
+
+    function setMsg(form, text, ok = false) {
+      const el = form.querySelector('[data-msg]');
+      el.textContent = text;
+      el.className = 'msg' + (text ? (ok ? ' msg--ok' : ' msg--error') : '');
+    }
+
+    async function list(name) {
+      const snap = await getDocs(collection(db, name));
+      return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    }
+
+    function fail(el, err) {
+      el.innerHTML = `<p class="msg msg--error">${esc(errMsg(err))}</p>`;
+    }
+
+    // 버튼 하나로 동작하는 작업 (확인 → 실행 → 새로고침)
+    function bindActions(container, handlers) {
+      container.querySelectorAll('[data-act]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const { act, id } = btn.dataset;
+          const h = handlers[act];
+          if (!h || (h.confirm && !confirm(h.confirm))) return;
+          btn.disabled = true;
+          try { await h.run(id); } catch (err) { alert(errMsg(err)); btn.disabled = false; }
+        });
+      });
+    }
+
+    // ===== 회원 =====
+    async function loadUsers() {
+      const pendingEl = document.getElementById('pending-list');
+      const studentEl = document.getElementById('student-list');
+      try {
+        users = (await list('users')).sort((a, b) => String(a.name).localeCompare(String(b.name), 'ko'));
+      } catch (err) { fail(pendingEl, err); return; }
+
+      const pending = users.filter((u) => u.role === 'pending');
+      const members = users.filter((u) => u.role === 'student' || u.role === 'admin');
+      document.getElementById('pending-count').textContent = pending.length ? pending.length : '';
+
+      const row = (u, actions) => `<li>
+        <div class="list__main">
+          <strong>${esc(u.name)}</strong> <span class="muted">${esc(u.school)} ${esc(u.grade)} · ${esc(u.email)}</span>
+          ${u.role === 'admin' ? '<span class="chip">관리자</span>' : ''}
+        </div>
+        <div class="list__actions">${actions}</div>
+      </li>`;
+
+      pendingEl.innerHTML = pending.length ? `<ul class="list">${pending.map((u) => row(u, `
+        <button class="btn btn--dark btn--sm" data-act="approve" data-id="${esc(u.id)}">승인</button>
+        <button class="btn btn--line btn--sm" data-act="reject" data-id="${esc(u.id)}">거절</button>`)).join('')}</ul>`
+        : '<p class="muted">승인 대기 중인 학생이 없어요.</p>';
+
+      studentEl.innerHTML = members.length ? `<ul class="list">${members.map((u) => row(u,
+        u.role === 'admin' ? '' : `<button class="btn btn--line btn--sm" data-act="revoke" data-id="${esc(u.id)}">승인 취소</button>`)).join('')}</ul>`
+        : '<p class="muted">아직 원생이 없어요.</p>';
+
+      const handlers = {
+        approve: { run: async (id) => { await updateDoc(doc(db, 'users', id), { role: 'student' }); await loadUsers(); } },
+        reject: { confirm: '가입 신청을 거절할까요? 가입 정보가 삭제돼요.', run: async (id) => { await deleteDoc(doc(db, 'users', id)); await loadUsers(); } },
+        revoke: { confirm: '승인을 취소할까요? 이 학생은 자료와 성적을 볼 수 없게 돼요.', run: async (id) => { await updateDoc(doc(db, 'users', id), { role: 'pending' }); await loadUsers(); } }
+      };
+      bindActions(pendingEl, handlers);
+      bindActions(studentEl, handlers);
+      fillStudentSelects();
+    }
+
+    function fillStudentSelects() {
+      const students = users.filter((u) => u.role === 'student');
+      const opts = students.map((u) => `<option value="${esc(u.id)}">${esc(u.name)} (${esc(u.school)} ${esc(u.grade)})</option>`).join('');
+      const sel = document.querySelector('#record-form [name=uid]');
+      sel.innerHTML = students.length ? opts : '<option value="">승인된 원생이 없어요</option>';
+      const filter = document.getElementById('record-filter');
+      const cur = filter.value;
+      filter.innerHTML = '<option value="">전체 학생</option>' + opts;
+      filter.value = cur;
+    }
+
+    // ===== 자료 =====
+    async function loadMaterials() {
+      const el = document.getElementById('material-list');
+      try {
+        const items = (await list('materials')).sort(byDateDesc);
+        el.innerHTML = items.length ? `<ul class="list">${items.map((m) => {
+          const url = safeUrl(m.url);
+          return `<li>
+            <div class="list__main">
+              <span class="chip">${esc(m.target)}</span>
+              ${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(m.title)}</a>` : esc(m.title)}
+              <span class="muted">${esc(m.date)}</span>
+            </div>
+            <div class="list__actions"><button class="btn btn--line btn--sm" data-act="del" data-id="${esc(m.id)}">삭제</button></div>
+          </li>`;
+        }).join('')}</ul>` : '<p class="muted">올린 자료가 없어요.</p>';
+        bindActions(el, { del: { confirm: '이 자료를 삭제할까요?', run: async (id) => { await deleteDoc(doc(db, 'materials', id)); await loadMaterials(); } } });
+      } catch (err) { fail(el, err); }
+    }
+
+    document.getElementById('material-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const url = safeUrl(f.url.value);
+      if (!f.title.value.trim()) return setMsg(f, '제목을 입력해 주세요.');
+      if (!url) return setMsg(f, 'https:// 로 시작하는 링크를 넣어 주세요.');
+      try {
+        await addDoc(collection(db, 'materials'), {
+          title: f.title.value.trim(), target: f.target.value, url, desc: f.desc.value.trim(),
+          date: f.date.value || today(), createdAt: serverTimestamp()
+        });
+        f.reset(); f.date.value = today();
+        setMsg(f, '올렸어요.', true);
+        loadMaterials();
+      } catch (err) { setMsg(f, errMsg(err)); }
+    });
+
+    // ===== 성적·과제 =====
+    let records = [];
+    function renderRecords() {
+      const el = document.getElementById('record-list');
+      const who = document.getElementById('record-filter').value;
+      const rows = records.filter((r) => !who || r.uid === who).sort(byDateDesc);
+      el.innerHTML = rows.length ? `<div class="table-wrap"><table class="table table--compact">
+        <thead><tr><th>날짜</th><th>학생</th><th>구분</th><th>내용</th><th>결과</th><th></th></tr></thead>
+        <tbody>${rows.map((r) => `<tr>
+          <td>${esc(r.date)}</td><td>${esc(nameOf(r.uid))}</td><td>${esc(r.kind)}</td>
+          <td>${esc(r.title)}${r.memo ? `<br /><span class="muted">${esc(r.memo)}</span>` : ''}</td>
+          <td><strong>${esc(r.score)}</strong></td>
+          <td><button class="btn btn--line btn--sm" data-act="del" data-id="${esc(r.id)}">삭제</button></td>
+        </tr>`).join('')}</tbody></table></div>` : '<p class="muted">입력한 기록이 없어요.</p>';
+      bindActions(el, { del: { confirm: '이 기록을 삭제할까요?', run: async (id) => { await deleteDoc(doc(db, 'records', id)); await loadRecords(); } } });
+    }
+    async function loadRecords() {
+      try { records = await list('records'); renderRecords(); }
+      catch (err) { fail(document.getElementById('record-list'), err); }
+    }
+    document.getElementById('record-filter').addEventListener('change', renderRecords);
+
+    document.getElementById('record-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      if (!f.uid.value) return setMsg(f, '학생을 선택해 주세요.');
+      if (!f.title.value.trim()) return setMsg(f, '내용을 입력해 주세요.');
+      if (!f.score.value.trim()) return setMsg(f, '결과를 입력해 주세요.');
+      try {
+        await addDoc(collection(db, 'records'), {
+          uid: f.uid.value, kind: f.kind.value, title: f.title.value.trim(), score: f.score.value.trim(),
+          memo: f.memo.value.trim(), date: f.date.value || today(), createdAt: serverTimestamp()
+        });
+        // 결과·메모만 비우고 학생·시험 이름·날짜는 남겨 둬요.
+        f.score.value = ''; f.memo.value = '';
+        setMsg(f, '저장했어요. 같은 시험을 다른 학생에게 이어서 입력할 수 있어요.', true);
+        loadRecords();
+      } catch (err) { setMsg(f, errMsg(err)); }
+    });
+
+    // ===== 학원 소식 =====
+    async function loadPosts() {
+      const el = document.getElementById('post-list');
+      try {
+        const items = (await list('posts')).sort(byDateDesc);
+        el.innerHTML = items.length ? `<ul class="list">${items.map((p) => `<li>
+          <div class="list__main"><span class="chip">${esc(p.tag)}</span> ${esc(p.title)} <span class="muted">${esc(p.date)}</span></div>
+          <div class="list__actions"><button class="btn btn--line btn--sm" data-act="del" data-id="${esc(p.id)}">삭제</button></div>
+        </li>`).join('')}</ul>` : '<p class="muted">올린 소식이 없어요.</p>';
+        bindActions(el, { del: { confirm: '이 소식을 삭제할까요?', run: async (id) => { await deleteDoc(doc(db, 'posts', id)); await loadPosts(); } } });
+      } catch (err) { fail(el, err); }
+    }
+
+    document.getElementById('post-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      if (!f.title.value.trim()) return setMsg(f, '제목을 입력해 주세요.');
+      if (f.url.value.trim() && !safeUrl(f.url.value)) return setMsg(f, '링크는 https:// 로 시작해야 해요.');
+      try {
+        await addDoc(collection(db, 'posts'), {
+          tag: f.tag.value, title: f.title.value.trim(), url: safeUrl(f.url.value),
+          date: f.date.value || today(), createdAt: serverTimestamp()
+        });
+        f.reset(); f.date.value = today();
+        setMsg(f, '올렸어요. 홈페이지에 바로 보여요.', true);
+        loadPosts();
+      } catch (err) { setMsg(f, errMsg(err)); }
+    });
+
+    // 탭
+    document.querySelectorAll('.tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('is-active', t === tab));
+        document.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== tab.dataset.tab; });
+      });
+    });
+
+    async function main() {
+      if (!ready) { gate.innerHTML = NOT_READY_HTML; return; }
+      const user = await currentUser();
+      if (!user) { location.replace('login.html'); return; }
+
+      const logout = document.getElementById('logout');
+      logout.hidden = false;
+      logout.addEventListener('click', async () => { await signOut(auth); location.href = 'index.html'; });
+
+      let profile = null;
+      try { profile = await getProfile(user.uid); } catch (err) { fail(gate, err); return; }
+      if (!profile || profile.role !== 'admin') {
+        gate.innerHTML = '<p class="msg msg--error">관리자만 들어올 수 있어요.</p>';
+        return;
+      }
+
+      gate.hidden = true;
+      document.getElementById('admin').hidden = false;
+      document.querySelectorAll('input[type=date]').forEach((i) => { i.value = today(); });
+      await loadUsers();
+      loadMaterials();
+      loadRecords();
+      loadPosts();
+    }
+
+    main();
+  </script>
+</body>
+</html>

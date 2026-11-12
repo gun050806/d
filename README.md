@@ -9,6 +9,12 @@ HTML, CSS, JavaScript로 만든 더로직 고등영어(동탄) 홈페이지입�
 | `index.html` | 페이지 내용 (1학기 결과, 학원 소식, 수업 안내, 오시는 길) |
 | `style.css` | 디자인 (색상, 글꼴, 배치) |
 | `script.js` | 하단 연도 자동 표시 |
+| `login.html` | 원생 로그인 · 회원가입 |
+| `my.html` | 원생 페이지 (자료실, 내 성적·과제) |
+| `admin.html` | 관리 페이지 (가입 승인, 자료·성적·소식 올리기) |
+| `js/fb.js` | Firebase 연결 · 공통 기능 |
+| `firebase-config.js` | Firebase 설정값 (콘솔에서 복사해 넣기) |
+| `firestore.rules` | 데이터 보안 규칙 (콘솔에 붙여 넣기) |
 | `fonts/` | 글꼴 파일 — 본문 Pretendard, 영문 로고 Libre Baskerville (둘 다 SIL Open Font License, `fonts/LICENSE-*.txt`) |
 
 ## 보는 방법
@@ -38,3 +44,19 @@ HTML, CSS, JavaScript로 만든 더로직 고등영어(동탄) 홈페이지입�
 1. GitHub 저장소의 **Settings → Pages**로 이동해요.
 2. **Source**를 `Deploy from a branch`로, 브랜치와 `/ (root)` 폴더를 고르고 저장해요.
 3. 잠시 후 `https://<사용자이름>.github.io/<저장소이름>/` 주소로 접속할 수 있어요.
+
+## 로그인 기능 설정 (Firebase, 무료)
+
+1. **프로젝트 만들기**: https://console.firebase.google.com → 프로젝트 추가 → 이름 입력 (Google 애널리틱스는 꺼도 돼요)
+2. **로그인 켜기**: 빌드 → Authentication → 시작하기 → 로그인 방법에서 **이메일/비밀번호** 사용 설정 → 저장
+3. **데이터베이스 만들기**: 빌드 → Firestore Database → 데이터베이스 만들기 → 위치 **asia-northeast3 (서울)** → **프로덕션 모드**
+4. **보안 규칙 넣기**: Firestore → **규칙** 탭 → 기존 내용을 지우고 `firestore.rules` 내용을 전부 붙여 넣기 → **게시**
+5. **웹 앱 등록**: 프로젝트 설정(톱니바퀴) → 내 앱 → 웹(`</>`) → 앱 닉네임 입력 → 나오는 `firebaseConfig` 값을 `firebase-config.js`에 붙여 넣기
+6. **도메인 허용**: Authentication → 설정 → 승인된 도메인 → `gun050806.github.io` 추가
+7. **원장님 관리자 지정**: 홈페이지에서 원장님 계정으로 회원가입 → Firestore → `users` → 원장님 문서 → `role` 값을 `pending`에서 `admin`으로 수정
+
+### 사용 방법
+- 학생이 회원가입하면 **관리 페이지 → 회원**에서 승인해요. 승인 전에는 자료와 성적이 보이지 않아요.
+- 자료는 구글 드라이브 등에 올린 뒤 **공유 링크**를 등록해요. (링크가 있는 사람은 누구나 열 수 있게 공유 설정 필요)
+- 성적·과제는 학생 본인과 원장님만 볼 수 있어요.
+- 학원 소식은 홈페이지 "학원 소식" 맨 위에 바로 보여요.

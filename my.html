@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>내 페이지 | 더 로직 고등영어</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preload" href="fonts/Pretendard-Regular.subset.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="member">
+  <header class="header">
+    <div class="wrap header__inner">
+      <a href="index.html" class="brand">
+        <span class="script">The Logic</span>
+        <span class="brand__ko">더 로직 고등영어</span>
+      </a>
+      <div class="header__member">
+        <a href="admin.html" id="admin-link" hidden>관리</a>
+        <button class="link-btn" id="logout" hidden>로그아웃</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="wrap">
+      <div id="app"><p class="muted">불러오는 중…</p></div>
+    </div>
+  </main>
+
+  <script type="module">
+    import {
+      ready, auth, db, signOut, collection, query, where, getDocs, doc, setDoc,
+      serverTimestamp, getProfile, currentUser, esc, safeUrl, errMsg, NOT_READY_HTML
+    } from './js/fb.js';
+
+    const app = document.getElementById('app');
+
+    function profileForm() {
+      return `
+        <div class="panel">
+          <h1 class="page__title">가입 정보 입력</h1>
+          <p class="muted">가입 정보가 없어요. 아래 정보를 입력하면 원장님께 승인 요청이 가요.</p>
+          <form class="form" id="profile-form" novalidate>
+            <label class="field"><span>이름</span><input name="name" maxlength="20" required /></label>
+            <div class="field-row">
+              <label class="field"><span>학교</span><input name="school" maxlength="20" placeholder="예: 이솔고" required /></label>
+              <label class="field"><span>학년</span>
+                <select name="grade" required><option value="">선택</option><option>고1</option><option>고2</option><option>고3</option></select>
+              </label>
+            </div>
+            <p class="msg" data-msg></p>
+            <button class="btn btn--dark btn--full" type="submit">승인 요청</button>
+          </form>
+        </div>`;
+    }
+
+    async function main() {
+      if (!ready) { app.innerHTML = NOT_READY_HTML; return; }
+
+      const user = await currentUser();
+      if (!user) { location.replace('login.html'); return; }
+
+      const logout = document.getElementById('logout');
+      logout.hidden = false;
+      logout.addEventListener('click', async () => { await signOut(auth); location.href = 'index.html'; });
+
+      let profile;
+      try {
+        profile = await getProfile(user.uid);
+      } catch (err) {
+        app.innerHTML = `<p class="msg msg--error">${esc(errMsg(err))}</p>`;
+        return;
+      }
+
+      // 가입 정보가 없을 때 (가입 중 오류 또는 거절된 경우)
+      if (!profile) {
+        app.innerHTML = profileForm();
+        const f = document.getElementById('profile-form');
+        f.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const msg = f.querySelector('[data-msg]');
+          const name = f.name.value.trim(), school = f.school.value.trim(), grade = f.grade.value;
+          if (!name || !school || !grade) { msg.textContent = '모든 칸을 입력해 주세요.'; msg.className = 'msg msg--error'; return; }
+          try {
+            await setDoc(doc(db, 'users', user.uid), {
+              name, school, grade, email: user.email, role: 'pending', createdAt: serverTimestamp()
+            });
+            location.reload();
+          } catch (err) {
+            msg.textContent = errMsg(err); msg.className = 'msg msg--error';
+          }
+        });
+        return;
+      }
+
+      if (profile.role === 'admin') document.getElementById('admin-link').hidden = false;
+
+      // 승인 대기
+      if (profile.role === 'pending') {
+        app.innerHTML = `
+          <div class="panel panel--center">
+            <h1 class="page__title">승인 대기 중이에요</h1>
+            <p>${esc(profile.name)} 학생 (${esc(profile.school)} ${esc(profile.grade)})</p>
+            <p class="muted">원장님이 승인하면 자료실과 성적을 볼 수 있어요.<br />급하면 010-5273-8792로 연락 주세요.</p>
+          </div>`;
+        return;
+      }
+
+      // 승인된 원생
+      app.innerHTML = `
+        <h1 class="page__title">${esc(profile.name)} <small>${esc(profile.school)} ${esc(profile.grade)}</small></h1>
+
+        <section class="section-box">
+          <h2>자료실</h2>
+          <div id="materials"><p class="muted">불러오는 중…</p></div>
+        </section>
+
+        <section class="section-box">
+          <h2>내 성적 · 과제</h2>
+          <div id="records"><p class="muted">불러오는 중…</p></div>
+        </section>`;
+
+      // 자료실: 전체 대상 + 내 학년 자료
+      try {
+        const snap = await getDocs(collection(db, 'materials'));
+        const items = snap.docs.map((d) => d.data())
+          .filter((m) => profile.role === 'admin' || m.target === '전체' || m.target === profile.grade)
+          .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+        document.getElementById('materials').innerHTML = items.length ? `
+          <ul class="list">
+            ${items.map((m) => {
+              const url = safeUrl(m.url);
+              return `<li>
+                <div class="list__main">
+                  <span class="chip">${esc(m.target)}</span>
+                  ${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(m.title)}</a>` : `<span>${esc(m.title)}</span>`}
+                  ${m.desc ? `<p class="muted">${esc(m.desc)}</p>` : ''}
+                </div>
+                <time>${esc(m.date)}</time>
+              </li>`;
+            }).join('')}
+          </ul>` : '<p class="muted">아직 올라온 자료가 없어요.</p>';
+      } catch (err) {
+        document.getElementById('materials').innerHTML = `<p class="msg msg--error">${esc(errMsg(err))}</p>`;
+      }
+
+      // 내 성적·과제: 내 것만
+      try {
+        const snap = await getDocs(query(collection(db, 'records'), where('uid', '==', user.uid)));
+        const rows = snap.docs.map((d) => d.data())
+          .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+        document.getElementById('records').innerHTML = rows.length ? `
+          <div class="table-wrap">
+            <table class="table table--compact">
+              <thead><tr><th>날짜</th><th>구분</th><th>내용</th><th>결과</th><th>메모</th></tr></thead>
+              <tbody>
+                ${rows.map((r) => `<tr>
+                  <td>${esc(r.date)}</td><td>${esc(r.kind)}</td><td>${esc(r.title)}</td>
+                  <td><strong>${esc(r.score)}</strong></td><td>${esc(r.memo)}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>` : '<p class="muted">아직 기록이 없어요.</p>';
+      } catch (err) {
+        document.getElementById('records').innerHTML = `<p class="msg msg--error">${esc(errMsg(err))}</p>`;
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>

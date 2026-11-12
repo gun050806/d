@@ -22,6 +22,7 @@
         <a href="#class">수업 안내</a>
         <a href="#map">오시는 길</a>
         <a href="https://m.blog.naver.com/audtjr3956" target="_blank" rel="noopener">블로그</a>
+        <a href="login.html">원생 로그인</a>
       </nav>
       <a class="header__tel" href="tel:010-5273-8792">상담 010-5273-8792</a>
     </div>
@@ -79,7 +80,7 @@
           <a class="more" href="https://m.blog.naver.com/audtjr3956" target="_blank" rel="noopener">블로그에서 더 보기</a>
         </div>
 
-        <ul class="board">
+        <ul class="board" id="board">
           <li>
             <a href="https://m.blog.naver.com/audtjr3956" target="_blank" rel="noopener">
               <span class="board__tag">결과</span>
@@ -191,5 +192,25 @@
   </div>
 
   <script src="script.js"></script>
+  <script type="module">
+    // 관리 페이지에서 쓴 학원 소식을 목록 맨 위에 보여줘요. (Firebase 설정 전에는 아무 일도 안 해요)
+    import { ready, db, collection, getDocs, esc, safeUrl } from './js/fb.js';
+    if (ready) {
+      try {
+        const snap = await getDocs(collection(db, 'posts'));
+        const posts = snap.docs.map((d) => d.data())
+          .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+        const blog = 'https://m.blog.naver.com/audtjr3956';
+        const html = posts.map((p) => `<li>
+          <a href="${esc(safeUrl(p.url) || blog)}" target="_blank" rel="noopener">
+            <span class="board__tag">${esc(p.tag)}</span>
+            <span class="board__title">${esc(p.title)}</span>
+            <time datetime="${esc(p.date)}">${esc(String(p.date || '').replaceAll('-', '.'))}</time>
+          </a>
+        </li>`).join('');
+        document.getElementById('board').insertAdjacentHTML('afterbegin', html);
+      } catch (e) { /* 소식을 못 불러와도 기존 목록은 그대로 보여요 */ }
+    }
+  </script>
 </body>
 </html>

@@ -1,0 +1,59 @@
+rules_version = '2';
+
+// 더로직 고등영어 홈페이지 보안 규칙
+// Firebase 콘솔 → Firestore Database → 규칙(Rules) 탭에 이 내용 전체를 붙여 넣고 "게시"를 누르세요.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function myRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    function hasProfile() {
+      return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+    function isAdmin() {
+      return hasProfile() && myRole() == 'admin';
+    }
+    function isMember() {
+      return hasProfile() && myRole() in ['student', 'admin'];
+    }
+    function shortText(v, max) {
+      return v is string && v.size() > 0 && v.size() <= max;
+    }
+
+    // 회원 정보: 본인과 원장님만 볼 수 있어요.
+    // 가입할 때는 '승인 대기(pending)' 상태로만 만들 수 있고, 승인은 원장님만 해요.
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'school', 'grade', 'email', 'role', 'createdAt'])
+        && request.resource.data.role == 'pending'
+        && shortText(request.resource.data.name, 20)
+        && shortText(request.resource.data.school, 20)
+        && request.resource.data.grade in ['고1', '고2', '고3']
+        && request.resource.data.email == request.auth.token.email;
+      allow update, delete: if isAdmin();
+    }
+
+    // 자료실: 승인된 원생만 보고, 원장님만 올려요.
+    match /materials/{id} {
+      allow read: if isMember();
+      allow write: if isAdmin();
+    }
+
+    // 성적·과제: 학생은 자기 것만 보고, 원장님만 입력해요.
+    match /records/{id} {
+      allow read: if isAdmin() || (isMember() && resource.data.uid == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    // 학원 소식: 누구나 보고, 원장님만 써요.
+    match /posts/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

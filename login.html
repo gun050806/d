@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>원생 로그인 | 더 로직 고등영어</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preload" href="fonts/Pretendard-Regular.subset.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="member">
+  <header class="header">
+    <div class="wrap header__inner">
+      <a href="index.html" class="brand">
+        <span class="script">The Logic</span>
+        <span class="brand__ko">더 로직 고등영어</span>
+      </a>
+      <a class="header__tel" href="index.html">홈으로</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="wrap wrap--narrow">
+      <div class="tabs" role="tablist">
+        <button class="tab is-active" data-tab="login" role="tab">로그인</button>
+        <button class="tab" data-tab="join" role="tab">회원가입</button>
+      </div>
+
+      <div id="notice"></div>
+
+      <!-- 로그인 -->
+      <form class="form" id="login-form" data-panel="login" novalidate>
+        <label class="field">
+          <span>이메일</span>
+          <input type="email" name="email" autocomplete="email" required />
+        </label>
+        <label class="field">
+          <span>비밀번호</span>
+          <input type="password" name="password" autocomplete="current-password" required />
+        </label>
+        <p class="msg" data-msg></p>
+        <button class="btn btn--dark btn--full" type="submit">로그인</button>
+        <button class="link-btn" type="button" id="reset-btn">비밀번호를 잊으셨나요?</button>
+      </form>
+
+      <!-- 회원가입 -->
+      <form class="form" id="join-form" data-panel="join" hidden novalidate>
+        <p class="form__help">가입 후 원장님이 승인하면 자료실과 성적을 볼 수 있어요.</p>
+        <label class="field">
+          <span>이름</span>
+          <input type="text" name="name" maxlength="20" autocomplete="name" required />
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span>학교</span>
+            <select name="school" required>
+              <option value="">선택</option>
+              <option>이솔고</option>
+              <option>서연고</option>
+              <option>정현고</option>
+              <option value="기타">기타 (직접 입력)</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>학년</span>
+            <select name="grade" required>
+              <option value="">선택</option>
+              <option>고1</option>
+              <option>고2</option>
+              <option>고3</option>
+            </select>
+          </label>
+        </div>
+        <label class="field" id="school-etc" hidden>
+          <span>학교 이름</span>
+          <input type="text" name="schoolEtc" maxlength="20" placeholder="예: 동탄고" />
+        </label>
+        <label class="field">
+          <span>이메일</span>
+          <input type="email" name="email" autocomplete="email" required />
+        </label>
+        <label class="field">
+          <span>비밀번호 (6자 이상)</span>
+          <input type="password" name="password" minlength="6" autocomplete="new-password" required />
+        </label>
+        <label class="field">
+          <span>비밀번호 확인</span>
+          <input type="password" name="password2" minlength="6" autocomplete="new-password" required />
+        </label>
+
+        <div class="agree">
+          <p><strong>개인정보 수집·이용 안내</strong></p>
+          <ul>
+            <li>수집 항목: 이름, 학교, 학년, 이메일</li>
+            <li>이용 목적: 원생 확인, 학습 자료·성적 안내</li>
+            <li>보관 기간: 퇴원 또는 탈퇴 요청 시 지체 없이 삭제</li>
+          </ul>
+          <label class="check">
+            <input type="checkbox" name="agree" required />
+            <span>위 내용에 동의합니다.</span>
+          </label>
+        </div>
+
+        <p class="msg" data-msg></p>
+        <button class="btn btn--dark btn--full" type="submit">가입 신청</button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    // 탭 전환 (Firebase와 상관없이 항상 동작)
+    document.querySelectorAll('.tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('is-active', t === tab));
+        document.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== tab.dataset.tab; });
+      });
+    });
+    // 학교 '기타' 선택 시 직접 입력
+    document.querySelector('#join-form [name=school]').addEventListener('change', (e) => {
+      document.getElementById('school-etc').hidden = e.target.value !== '기타';
+    });
+  </script>
+  <script type="module">
+    import {
+      ready, auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+      sendPasswordResetEmail, doc, setDoc, serverTimestamp, getProfile, errMsg, NOT_READY_HTML
+    } from './js/fb.js';
+
+    const notice = document.getElementById('notice');
+    const loginForm = document.getElementById('login-form');
+    const joinForm = document.getElementById('join-form');
+
+    function show(form, text, ok = false) {
+      const el = form.querySelector('[data-msg]');
+      el.textContent = text;
+      el.className = 'msg' + (text ? (ok ? ' msg--ok' : ' msg--error') : '');
+    }
+
+    function busy(form, on) {
+      form.querySelector('button[type=submit]').disabled = on;
+    }
+
+    async function goByRole(user) {
+      const profile = await getProfile(user.uid);
+      location.href = profile && profile.role === 'admin' ? 'admin.html' : 'my.html';
+    }
+
+    if (!ready) {
+      notice.innerHTML = NOT_READY_HTML;
+      loginForm.querySelector('button[type=submit]').disabled = true;
+      joinForm.querySelector('button[type=submit]').disabled = true;
+    }
+
+    // 로그인
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!ready) return;
+      show(loginForm, '');
+      busy(loginForm, true);
+      try {
+        const cred = await signInWithEmailAndPassword(auth, loginForm.email.value.trim(), loginForm.password.value);
+        await goByRole(cred.user);
+      } catch (err) {
+        show(loginForm, errMsg(err));
+        busy(loginForm, false);
+      }
+    });
+
+    // 비밀번호 재설정 메일
+    document.getElementById('reset-btn').addEventListener('click', async () => {
+      if (!ready) return;
+      const email = loginForm.email.value.trim();
+      if (!email) { show(loginForm, '위에 가입한 이메일을 먼저 입력해 주세요.'); return; }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        show(loginForm, '비밀번호 재설정 메일을 보냈어요. 메일함을 확인해 주세요.', true);
+      } catch (err) {
+        show(loginForm, errMsg(err));
+      }
+    });
+
+    // 회원가입
+    joinForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!ready) return;
+      const f = joinForm;
+      const name = f.name.value.trim();
+      const school = f.school.value === '기타' ? f.schoolEtc.value.trim() : f.school.value;
+      const grade = f.grade.value;
+      const email = f.email.value.trim();
+
+      if (!name) return show(f, '이름을 입력해 주세요.');
+      if (!school) return show(f, '학교를 선택해 주세요.');
+      if (!grade) return show(f, '학년을 선택해 주세요.');
+      if (f.password.value.length < 6) return show(f, '비밀번호는 6자 이상이어야 해요.');
+      if (f.password.value !== f.password2.value) return show(f, '비밀번호 확인이 맞지 않아요.');
+      if (!f.agree.checked) return show(f, '개인정보 수집·이용에 동의해 주세요.');
+
+      show(f, '');
+      busy(f, true);
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, f.password.value);
+        await setDoc(doc(db, 'users', cred.user.uid), {
+          name, school, grade, email: cred.user.email, role: 'pending', createdAt: serverTimestamp()
+        });
+        location.href = 'my.html';
+      } catch (err) {
+        show(f, errMsg(err));
+        busy(f, false);
+      }
+    });
+  </script>
+</body>
+</html>
