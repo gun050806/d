@@ -19,10 +19,11 @@
 }
 
 @font-face {
-  font-family: "Allura";
-  font-weight: 400;
+  font-family: "Cormorant Garamond";
+  font-weight: 500;
+  font-style: italic;
   font-display: swap;
-  src: url("fonts/Allura-Regular.woff2") format("woff2");
+  src: url("fonts/CormorantGaramond-MediumItalic.woff2") format("woff2");
 }
 
 /* 색상 — 여기 값만 바꾸면 전체 색이 바뀌어요 */
@@ -82,10 +83,11 @@ a {
   align-items: center;
   gap: 40px;
 }
-/* 손글씨 로고 'The Logic' */
+/* 영문 로고 'The Logic' */
 .script {
-  font-family: "Allura", cursive;
-  font-weight: 400;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
   letter-spacing: 0;
   line-height: 1;
 }
@@ -96,7 +98,7 @@ a {
   white-space: nowrap;
 }
 .brand .script {
-  font-size: 2rem;
+  font-size: 1.7rem;
 }
 .brand__ko {
   font-size: 0.85rem;
@@ -166,7 +168,7 @@ a {
   margin: 0 0 18px;
 }
 .intro__logo .script {
-  font-size: clamp(3.6rem, 9vw, 5.5rem);
+  font-size: clamp(3.2rem, 8vw, 4.8rem);
   color: #f2f2f2;
 }
 .intro__name {
@@ -459,7 +461,7 @@ a {
     padding: 44px 0 52px;
   }
   .brand .script {
-    font-size: 1.8rem;
+    font-size: 1.55rem;
   }
   .intro__inner {
     grid-template-columns: 1fr;
