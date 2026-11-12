@@ -286,25 +286,6 @@ a {
   font-variant-numeric: tabular-nums;
 }
 
-.note {
-  margin: 40px 0 0;
-  padding: 0 0 0 20px;
-  border-left: 3px solid var(--ink);
-}
-.note blockquote {
-  margin: 0;
-  font-size: 1.05rem;
-  color: #333;
-}
-.note blockquote p {
-  margin: 0 0 8px;
-}
-.note figcaption {
-  margin-top: 10px;
-  font-size: 0.88rem;
-  color: var(--sub);
-}
-
 /* 내신 결과 */
 .result-lead {
   margin: 0 0 24px;
