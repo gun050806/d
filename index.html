@@ -9,7 +9,7 @@
   <link rel="preload" href="fonts/Pretendard-Regular.subset.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="fonts/Pretendard-Bold.subset.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="fonts/LibreBaskerville-Italic.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="style.css?v=1112d" />
+  <link rel="stylesheet" href="style.css?v=1112f" />
 </head>
 <body>
   <header class="header">
@@ -20,6 +20,7 @@
       </a>
       <nav class="nav">
         <a href="#news">학원 소식</a>
+        <a href="#result">내신 결과</a>
         <a href="#class">수업 안내</a>
         <a href="#map">오시는 길</a>
         <a href="https://m.blog.naver.com/audtjr3956" target="_blank" rel="noopener">블로그</a>
@@ -39,7 +40,7 @@
         </p>
         <h1 class="intro__title">수능 영어의 본질을 알려드리겠습니다.</h1>
 
-        <a class="result" href="#news">
+        <a class="result" href="#result">
           <span class="result__term">2026년 1학기</span>
           <span class="result__text">이솔고1 · 정현고2 영어 <em>전교 1등</em></span>
           <span class="result__note">중간·기말 포함</span>
@@ -87,8 +88,48 @@
       </div>
     </section>
 
+    <!-- 내신 결과 -->
+    <section class="block block--gray" id="result">
+      <div class="wrap">
+        <div class="block__head">
+          <h2>2026년 1학기 내신 결과</h2>
+        </div>
+
+        <ul class="facts">
+          <li>원장이 혼자 운영하는 학원입니다. 한 반 정원은 10명입니다.</li>
+          <li>학교·학년별로 한 반만 운영합니다. 이솔고3은 1년 내내 퇴원생이 없어 두 반을 운영했습니다.</li>
+          <li>이솔고1, 정현고2 최종 영어 1등</li>
+        </ul>
+
+        <div class="table-wrap">
+          <table class="table table--result">
+            <thead>
+              <tr><th scope="col">학교</th><th scope="col">중간고사</th><th scope="col">기말고사</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">이솔고1</th><td><em>100점 1등</em><br />1등급 2명</td><td><em>100점 2명</em><br /><em>(최종 1등)</em><br />1등급 3명</td></tr>
+              <tr><th scope="row">정현고2</th><td><em>100점 1등</em><br />1등급 2명</td><td><em>100점</em><br /><em>(최종 1등)</em></td></tr>
+              <tr><th scope="row">서연고3</th><td><em>100점 1등</em></td><td>1등급 1명</td></tr>
+              <tr><th scope="row">서연고1</th><td>1등급 4명</td><td>99점, 95점<br />1등급 5명</td></tr>
+              <tr><th scope="row">서연고2</th><td>98점<br />1등급 2명</td><td>1등급 1명<br />(확인 중)</td></tr>
+              <tr><th scope="row">이솔고2</th><td>1등급 2명</td><td>1등급 3명<br />30점 상승 1명</td></tr>
+              <tr><th scope="row">이솔고3</th><td>1등급 2명</td><td>1등급 5명</td></tr>
+              <tr><th scope="row">정현고1</th><td>2등급 3명</td><td>2등급 4명<br />15점 상승 1명</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="sheet">
+          <a href="images/2026-1-result.jpg" target="_blank" rel="noopener">
+            <img src="images/2026-1-result.jpg" width="980" height="1418" loading="lazy" alt="더로직 고등영어 2026년 1학기 학교·학년별 내신 결과표" />
+          </a>
+          <figcaption>학생별 결과표 원본입니다. 누르면 크게 볼 수 있습니다.</figcaption>
+        </figure>
+      </div>
+    </section>
+
     <!-- 수업 안내 -->
-    <section class="block block--gray" id="class">
+    <section class="block" id="class">
       <div class="wrap">
         <div class="block__head">
           <h2>수업 안내</h2>
@@ -105,6 +146,10 @@
               <td>이솔고, 서연고, 정현고</td>
             </tr>
             <tr>
+              <th scope="row">반 구성</th>
+              <td>학교·학년별 한 반, 정원 10명 (원장 혼자 운영)</td>
+            </tr>
+            <tr>
               <th scope="row">수업</th>
               <td>학교별 영어 내신 (중간 · 기말고사 대비), 수능 영어</td>
             </tr>
@@ -114,7 +159,7 @@
     </section>
 
     <!-- 오시는 길 -->
-    <section class="block" id="map">
+    <section class="block block--gray" id="map">
       <div class="wrap">
         <div class="block__head">
           <h2>오시는 길</h2>
