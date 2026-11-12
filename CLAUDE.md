@@ -29,6 +29,9 @@
 - `materials`: title, target(전체/고1/고2/고3), url, desc, date
 - `records`: uid, kind, title, score, memo, date (학생 본인 + 관리자만 읽기)
 - `posts`: tag, title, url, date (공개 읽기, 홈페이지 "학원 소식"에 표시)
+- `events`: date, time, kind(수업/보강/시험/휴원/기타), title, school(전체/이솔고/서연고/정현고), grade(전체/고1~3), memo — 원생 읽기, 관리자 쓰기. 원생 페이지에서 내 학교·학년 것만 걸러 보여 줌
+- `users/{uid}/plans`: title, date, time — 학생 본인만 읽기·쓰기 (원장님도 못 봄)
+- 달력 공통 코드: `js/calendar.js` (my.html·admin.html에서 사용)
 - 관리자 지정은 콘솔에서 users 문서의 role을 `admin`으로 직접 수정
 
 ## 진행 상황 (2026-11-12)

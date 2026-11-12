@@ -38,6 +38,24 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // 학원 일정: 승인된 원생만 보고, 원장님만 올려요.
+    // (어느 학교·학년 일정을 보여 줄지는 원생 페이지에서 골라요)
+    match /events/{id} {
+      allow read: if isMember();
+      allow write: if isAdmin();
+    }
+
+    // 내 일정: 원생 본인만 보고 쓸 수 있어요. (원장님도 못 봐요)
+    match /users/{uid}/plans/{id} {
+      allow read, delete: if isMember() && request.auth.uid == uid;
+      allow create: if isMember() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['title', 'date', 'time', 'createdAt'])
+        && shortText(request.resource.data.title, 60)
+        && request.resource.data.date is string
+        && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && (request.resource.data.time == '' || request.resource.data.time.matches('^[0-9]{2}:[0-9]{2}$'));
+    }
+
     // 자료실: 승인된 원생만 보고, 원장님만 올려요.
     match /materials/{id} {
       allow read: if isMember();

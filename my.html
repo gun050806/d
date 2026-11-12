@@ -30,9 +30,10 @@
 
   <script type="module">
     import {
-      ready, auth, db, signOut, collection, query, where, getDocs, doc, setDoc,
-      serverTimestamp, getProfile, currentUser, esc, safeUrl, errMsg, NOT_READY_HTML
+      ready, auth, db, signOut, collection, query, where, getDocs, doc, setDoc, addDoc, deleteDoc,
+      serverTimestamp, getProfile, currentUser, esc, safeUrl, today, errMsg, NOT_READY_HTML
     } from './js/fb.js';
+    import { createCalendar, dayLabel, isForStudent, targetLabel } from './js/calendar.js';
 
     const app = document.getElementById('app');
 
@@ -102,7 +103,7 @@
           <div class="panel panel--center">
             <h1 class="page__title">승인 대기 중이에요</h1>
             <p>${esc(profile.name)} 학생 (${esc(profile.school)} ${esc(profile.grade)})</p>
-            <p class="muted">원장님이 승인하면 자료실과 성적을 볼 수 있어요.<br />급하면 010-5273-8792로 연락 주세요.</p>
+            <p class="muted">원장님이 승인하면 일정, 자료실, 성적을 볼 수 있어요.<br />급하면 010-5273-8792로 연락 주세요.</p>
           </div>`;
         return;
       }
@@ -110,6 +111,22 @@
       // 승인된 원생
       app.innerHTML = `
         <h1 class="page__title">${esc(profile.name)} <small>${esc(profile.school)} ${esc(profile.grade)}</small></h1>
+
+        <section class="section-box">
+          <h2>일정</h2>
+          <div class="cal" id="cal"></div>
+          <div class="day" id="day"></div>
+          <form class="form day__form" id="plan-form" novalidate>
+            <p class="day__form-title">내 일정 추가 <span class="muted" id="plan-date"></span></p>
+            <div class="day__form-row">
+              <label class="field"><span>할 일</span><input name="title" maxlength="60" placeholder="예: 단어 50개 외우기" required /></label>
+              <label class="field day__time"><span>시간 (선택)</span><input type="time" name="time" /></label>
+            </div>
+            <p class="msg" data-msg></p>
+            <button class="btn btn--dark" type="submit">추가</button>
+            <p class="form__help">내 일정은 나만 볼 수 있어요.</p>
+          </form>
+        </section>
 
         <section class="section-box">
           <h2>자료실</h2>
@@ -120,6 +137,8 @@
           <h2>내 성적 · 과제</h2>
           <div id="records"><p class="muted">불러오는 중…</p></div>
         </section>`;
+
+      setupSchedule(user, profile);
 
       // 자료실: 전체 대상 + 내 학년 자료
       try {
@@ -165,6 +184,88 @@
       } catch (err) {
         document.getElementById('records').innerHTML = `<p class="msg msg--error">${esc(errMsg(err))}</p>`;
       }
+    }
+
+    // ===== 일정: 학원 일정(내 학교·학년) + 내 일정 =====
+    function setupSchedule(user, profile) {
+      const dayEl = document.getElementById('day');
+      const form = document.getElementById('plan-form');
+      const plansRef = collection(db, 'users', user.uid, 'plans');
+      let events = [];
+      let plans = [];
+      let loadError = '';
+
+      const cal = createCalendar(document.getElementById('cal'), { selected: today(), onSelect: renderDay });
+
+      function renderDay() {
+        const date = cal.selected;
+        document.getElementById('plan-date').textContent = dayLabel(date);
+        const byTime = (a, b) => String(a.time || '').localeCompare(String(b.time || ''));
+        const evs = events.filter((e) => e.date === date).sort(byTime);
+        const mine = plans.filter((p) => p.date === date).sort(byTime);
+        const time = (t) => t ? `<span class="day__time-text">${esc(t)}</span>` : '';
+
+        dayEl.innerHTML = `<h3 class="day__title">${esc(dayLabel(date))}</h3>`
+          + (loadError ? `<p class="msg msg--error">${esc(loadError)}</p>` : '')
+          + (evs.length || mine.length ? `<ul class="list">
+            ${evs.map((e) => `<li>
+              <div class="list__main">
+                <span class="chip${e.kind === '시험' ? ' chip--point' : ''}">${esc(e.kind)}</span>${time(e.time)}
+                <strong>${esc(e.title)}</strong>
+                <span class="muted">${esc(targetLabel(e))}</span>
+                ${e.memo ? `<p class="muted">${esc(e.memo)}</p>` : ''}
+              </div>
+            </li>`).join('')}
+            ${mine.map((p) => `<li>
+              <div class="list__main"><span class="chip chip--mine">내 일정</span>${time(p.time)} ${esc(p.title)}</div>
+              <div class="list__actions"><button class="btn btn--line btn--sm" data-del="${esc(p.id)}">삭제</button></div>
+            </li>`).join('')}
+          </ul>` : '<p class="muted">일정이 없어요.</p>');
+
+        dayEl.querySelectorAll('[data-del]').forEach((b) => b.addEventListener('click', async () => {
+          if (!confirm('이 일정을 삭제할까요?')) return;
+          b.disabled = true;
+          try { await deleteDoc(doc(plansRef, b.dataset.del)); await loadPlans(); }
+          catch (err) { alert(errMsg(err)); b.disabled = false; }
+        }));
+      }
+
+      function refresh() {
+        cal.setItems([
+          ...events.map((e) => ({ date: e.date, kind: e.kind, mine: false })),
+          ...plans.map((p) => ({ date: p.date, mine: true }))
+        ]);
+        renderDay();
+      }
+
+      async function loadPlans() {
+        const snap = await getDocs(plansRef);
+        plans = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        refresh();
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = form.querySelector('[data-msg]');
+        const title = form.title.value.trim();
+        if (!title) { msg.textContent = '할 일을 입력해 주세요.'; msg.className = 'msg msg--error'; return; }
+        try {
+          await addDoc(plansRef, { title, date: cal.selected, time: form.time.value || '', createdAt: serverTimestamp() });
+          form.reset();
+          msg.textContent = ''; msg.className = 'msg';
+          await loadPlans();
+        } catch (err) { msg.textContent = errMsg(err); msg.className = 'msg msg--error'; }
+      });
+
+      renderDay();
+      (async () => {
+        try {
+          const snap = await getDocs(collection(db, 'events'));
+          events = snap.docs.map((d) => d.data())
+            .filter((ev) => profile.role === 'admin' || isForStudent(ev, profile));
+        } catch (err) { loadError = errMsg(err); }
+        try { await loadPlans(); } catch (err) { loadError = errMsg(err); refresh(); }
+      })();
     }
 
     main();

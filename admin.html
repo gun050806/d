@@ -29,6 +29,7 @@
       <div id="admin" hidden>
         <div class="tabs tabs--wide" role="tablist">
           <button class="tab is-active" data-tab="users">회원 <span class="count" id="pending-count"></span></button>
+          <button class="tab" data-tab="events">일정</button>
           <button class="tab" data-tab="materials">자료</button>
           <button class="tab" data-tab="records">성적·과제</button>
           <button class="tab" data-tab="posts">학원 소식</button>
@@ -44,6 +45,40 @@
             <h2>원생</h2>
             <div id="student-list"></div>
           </div>
+        </section>
+
+        <!-- 일정 -->
+        <section data-panel="events" hidden>
+          <div class="section-box">
+            <h2>학원 일정</h2>
+            <div class="cal" id="cal"></div>
+            <div class="day" id="day"></div>
+          </div>
+          <form class="section-box form" id="event-form" novalidate>
+            <h2>일정 올리기</h2>
+            <p class="form__help">달력에서 날짜를 누르면 그 날짜로 바뀌어요. 고른 학교·학년 원생에게만 보여요.</p>
+            <div class="field-row">
+              <label class="field"><span>날짜</span><input type="date" name="date" required /></label>
+              <label class="field"><span>시간 (선택)</span><input type="time" name="time" /></label>
+            </div>
+            <div class="field-row">
+              <label class="field"><span>구분</span>
+                <select name="kind"><option>수업</option><option>보강</option><option>시험</option><option>휴원</option><option>기타</option></select>
+              </label>
+              <label class="field"><span>제목</span><input name="title" maxlength="60" placeholder="예: 이솔고 1학년 기말고사" required /></label>
+            </div>
+            <div class="field-row">
+              <label class="field"><span>학교</span>
+                <select name="school"><option>전체</option><option>이솔고</option><option>서연고</option><option>정현고</option></select>
+              </label>
+              <label class="field"><span>학년</span>
+                <select name="grade"><option>전체</option><option>고1</option><option>고2</option><option>고3</option></select>
+              </label>
+            </div>
+            <label class="field"><span>메모 (선택)</span><input name="memo" maxlength="200" placeholder="예: 시험 범위, 준비물" /></label>
+            <p class="msg" data-msg></p>
+            <button class="btn btn--dark" type="submit">올리기</button>
+          </form>
         </section>
 
         <!-- 자료 -->
@@ -126,6 +161,7 @@
       ready, auth, db, signOut, collection, getDocs, doc, addDoc, updateDoc, deleteDoc,
       serverTimestamp, getProfile, currentUser, esc, safeUrl, today, errMsg, NOT_READY_HTML
     } from './js/fb.js';
+    import { createCalendar, dayLabel, targetLabel } from './js/calendar.js';
 
     const gate = document.getElementById('gate');
     let users = [];
@@ -288,6 +324,55 @@
       } catch (err) { setMsg(f, errMsg(err)); }
     });
 
+    // ===== 일정 =====
+    let events = [];
+    const eventForm = document.getElementById('event-form');
+    const cal = createCalendar(document.getElementById('cal'), {
+      selected: today(),
+      onSelect: (date) => { eventForm.date.value = date; renderDay(); }
+    });
+
+    function renderDay() {
+      const el = document.getElementById('day');
+      const date = cal.selected;
+      const rows = events.filter((e) => e.date === date)
+        .sort((a, b) => String(a.time || '').localeCompare(String(b.time || '')));
+      el.innerHTML = `<h3 class="day__title">${esc(dayLabel(date))}</h3>` + (rows.length ? `<ul class="list">${rows.map((e) => `<li>
+        <div class="list__main">
+          <span class="chip${e.kind === '시험' ? ' chip--point' : ''}">${esc(e.kind)}</span>${e.time ? `<span class="day__time-text">${esc(e.time)}</span>` : ''}
+          <strong>${esc(e.title)}</strong> <span class="muted">${esc(targetLabel(e))}</span>
+          ${e.memo ? `<p class="muted">${esc(e.memo)}</p>` : ''}
+        </div>
+        <div class="list__actions"><button class="btn btn--line btn--sm" data-act="del" data-id="${esc(e.id)}">삭제</button></div>
+      </li>`).join('')}</ul>` : '<p class="muted">이 날 일정이 없어요.</p>');
+      bindActions(el, { del: { confirm: '이 일정을 삭제할까요?', run: async (id) => { await deleteDoc(doc(db, 'events', id)); await loadEvents(); } } });
+    }
+
+    async function loadEvents() {
+      try {
+        events = await list('events');
+        cal.setItems(events.map((e) => ({ date: e.date, kind: e.kind, mine: false })));
+        renderDay();
+      } catch (err) { fail(document.getElementById('day'), err); }
+    }
+
+    eventForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      if (!f.date.value) return setMsg(f, '날짜를 골라 주세요.');
+      if (!f.title.value.trim()) return setMsg(f, '제목을 입력해 주세요.');
+      try {
+        await addDoc(collection(db, 'events'), {
+          date: f.date.value, time: f.time.value || '', kind: f.kind.value, title: f.title.value.trim(),
+          school: f.school.value, grade: f.grade.value, memo: f.memo.value.trim(), createdAt: serverTimestamp()
+        });
+        // 날짜·학교·학년은 남겨 두고 내용만 비워요.
+        f.title.value = ''; f.memo.value = ''; f.time.value = '';
+        setMsg(f, '올렸어요.', true);
+        loadEvents();
+      } catch (err) { setMsg(f, errMsg(err)); }
+    });
+
     // ===== 학원 소식 =====
     async function loadPosts() {
       const el = document.getElementById('post-list');
@@ -345,6 +430,7 @@
       document.getElementById('admin').hidden = false;
       document.querySelectorAll('input[type=date]').forEach((i) => { i.value = today(); });
       await loadUsers();
+      loadEvents();
       loadMaterials();
       loadRecords();
       loadPosts();
