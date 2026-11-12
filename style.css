@@ -818,6 +818,46 @@ a {
   color: var(--sub);
 }
 
+/* 개인정보 처리방침 등 문서 */
+.doc {
+  max-width: 760px;
+  line-height: 1.75;
+  color: #333;
+}
+.doc h2 {
+  margin: 36px 0 10px;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+.doc p,
+.doc ul {
+  margin: 0 0 10px;
+}
+.doc ul {
+  padding-left: 20px;
+}
+.doc a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.doc__table {
+  margin: 8px 0 12px;
+  white-space: normal;
+}
+.doc__table th {
+  width: 120px;
+  white-space: nowrap;
+}
+.legal {
+  margin: 40px 0 0;
+  font-size: 0.85rem;
+  color: var(--sub);
+}
+.legal a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 /* 휴대폰 하단 고정 버튼 (PC에서는 숨김) */
 .callbar {
   display: none;
@@ -944,4 +984,8 @@ a {
 
 .nowrap {
   white-space: nowrap;
+}
+.agree a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }

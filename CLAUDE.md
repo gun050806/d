@@ -23,6 +23,8 @@
 ## 파일
 - `index.html` / `style.css`: 메인 페이지
 - `login.html`, `my.html`, `admin.html`, `js/fb.js`: 원생 로그인·자료실·성적, 원장 관리 페이지 (Firebase)
+- `privacy.html`: 개인정보 처리방침 (홈페이지 '오시는 길' 아래·가입 동의란에서 링크). 보호책임자는 '원장'+상담번호로 적어 둠 — 성함 받으면 추가. 수집 항목·저장 위치가 바뀌면 이 문서도 같이 고칠 것
+- 탈퇴·거절 시 Firestore 문서만 지워짐 → 원장님이 Firebase 콘솔 Authentication에서 계정도 삭제해야 처리방침대로 파기됨
 - `firebase-config.js`: Firebase 프로젝트 thelogic-e407d 설정값 (공개 값)
 - `firestore.rules`: 보안 규칙. 바꾸면 사용자가 Firebase 콘솔 → Firestore → 규칙에 다시 붙여 넣고 게시해야 함
 
