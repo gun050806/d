@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>홍길동 | 포트폴리오</title>
+  <meta name="description" content="홍길동의 개인 홈페이지입니다. 소개, 프로젝트, 연락처를 확인하세요." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    // 페이지가 그려지기 전에 테마를 적용해 깜빡임을 막아요.
+    (function () {
+      try {
+        var saved = localStorage.getItem('theme');
+        if (saved) document.documentElement.setAttribute('data-theme', saved);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <!-- ===== 상단 메뉴 ===== -->
+  <header class="header">
+    <div class="container header__inner">
+      <a href="#top" class="logo">길동<span>.</span></a>
+
+      <nav class="nav" id="nav">
+        <a href="#about">소개</a>
+        <a href="#skills">기술</a>
+        <a href="#projects">프로젝트</a>
+        <a href="#contact">연락처</a>
+      </nav>
+
+      <div class="header__actions">
+        <button class="icon-btn" id="theme-toggle" aria-label="다크 모드 전환">
+          <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button class="icon-btn menu-btn" id="menu-toggle" aria-label="메뉴 열기" aria-expanded="false" aria-controls="nav">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ===== 첫 화면 ===== -->
+    <section class="hero">
+      <div class="container">
+        <p class="hero__hello reveal">안녕하세요 👋</p>
+        <h1 class="hero__title reveal">
+          저는 <span class="highlight">홍길동</span>입니다.<br />
+          웹을 만드는 걸 좋아해요.
+        </h1>
+        <p class="hero__desc reveal">
+          사람들이 편하게 쓸 수 있는 웹사이트를 만들고 싶은 개발자 지망생입니다.
+          새로운 걸 배우고, 만들고, 공유하는 것을 즐깁니다.
+        </p>
+        <div class="hero__buttons reveal">
+          <a href="#projects" class="btn btn--primary">프로젝트 보기</a>
+          <a href="#contact" class="btn btn--ghost">연락하기</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 소개 ===== -->
+    <section class="section" id="about">
+      <div class="container about">
+        <div class="about__photo reveal" aria-hidden="true">
+          <div class="avatar">🙂</div>
+        </div>
+        <div class="about__text reveal">
+          <h2 class="section__title">소개</h2>
+          <p>
+            여기에 자기소개를 적어 보세요. 어떤 사람인지, 무엇에 관심이 있는지,
+            요즘 어떤 걸 공부하고 있는지 등을 2~3문장으로 쓰면 좋아요.
+          </p>
+          <ul class="facts">
+            <li><strong>📍 사는 곳</strong> 대한민국 서울</li>
+            <li><strong>🎓 학교</strong> ○○고등학교 / ○○대학교</li>
+            <li><strong>💡 관심사</strong> 웹 개발, 디자인, 게임</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 기술 ===== -->
+    <section class="section section--alt" id="skills">
+      <div class="container">
+        <h2 class="section__title reveal">할 줄 아는 것</h2>
+        <div class="skills reveal">
+          <span class="chip">HTML</span>
+          <span class="chip">CSS</span>
+          <span class="chip">JavaScript</span>
+          <span class="chip">Git</span>
+          <span class="chip">Python</span>
+          <span class="chip">Figma</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 프로젝트 ===== -->
+    <section class="section" id="projects">
+      <div class="container">
+        <h2 class="section__title reveal">프로젝트</h2>
+        <div class="cards">
+          <article class="card reveal">
+            <div class="card__emoji">🌐</div>
+            <h3>개인 홈페이지</h3>
+            <p>지금 보고 계신 이 사이트예요. HTML, CSS, JavaScript만으로 만들었어요.</p>
+            <div class="card__tags"><span>HTML</span><span>CSS</span><span>JS</span></div>
+          </article>
+          <article class="card reveal">
+            <div class="card__emoji">📝</div>
+            <h3>할 일 목록 앱</h3>
+            <p>할 일을 추가하고 완료 표시를 할 수 있는 간단한 웹 앱이에요.</p>
+            <div class="card__tags"><span>JavaScript</span><span>localStorage</span></div>
+          </article>
+          <article class="card reveal">
+            <div class="card__emoji">🎮</div>
+            <h3>미니 게임</h3>
+            <p>브라우저에서 바로 즐길 수 있는 작은 게임을 만들어 보고 있어요.</p>
+            <div class="card__tags"><span>Canvas</span><span>JS</span></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 연락처 ===== -->
+    <section class="section section--alt" id="contact">
+      <div class="container contact reveal">
+        <h2 class="section__title">연락하기</h2>
+        <p>궁금한 점이나 함께하고 싶은 일이 있다면 편하게 연락 주세요!</p>
+        <div class="contact__links">
+          <a class="btn btn--primary" href="mailto:hello@example.com">✉️ 이메일 보내기</a>
+          <a class="btn btn--ghost" href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© <span id="year"></span> 홍길동. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
