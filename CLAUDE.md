@@ -5,6 +5,7 @@
 ## 기본 정보
 - 사이트: https://gun050806.github.io/d/ (GitHub Pages, 브랜치 `claude/annyeong-herdq3`, 루트 폴더)
 - 푸시하면 1~2분 뒤 자동 배포. 별도 빌드 없음 (순수 HTML/CSS/JS)
+- 사용자 휴대폰은 삼성 인터넷 + 다크 모드 → 사이트가 어둡게 보일 수 있음. `color-scheme: only light`(meta + :root)로 막아 둠
 - GitHub Pages는 파일을 10분까지 캐시함 → style.css를 바꾸면 모든 html의 `style.css?v=...` 값도 바꿔야 휴대폰에 바로 반영됨
 - 학원 정보 출처: 네이버 블로그 m.blog.naver.com/audtjr3956, 네이버 플레이스
   - 주소: 경기도 화성시 동탄구 동탄순환대로 127-23 우성에듀파크 5층 502호 (호수공원 건너편)
