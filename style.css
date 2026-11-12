@@ -387,24 +387,6 @@ a {
   min-width: 220px;
 }
 
-/* 하단 */
-.footer {
-  padding: 40px 0 48px;
-  background: var(--ink);
-  color: #aaa;
-  font-size: 0.88rem;
-}
-.footer p {
-  margin: 0 0 4px;
-}
-.footer strong {
-  color: #fff;
-}
-.footer__copy {
-  margin-top: 16px !important;
-  color: #777;
-}
-
 /* ===== 원생·관리 페이지 ===== */
 .header__member {
   margin-left: auto;
@@ -954,7 +936,12 @@ a {
     background: var(--ink);
     color: #fff;
   }
-  .footer {
-    padding-bottom: 96px;
+  /* 하단 고정 버튼에 마지막 내용이 가리지 않도록 */
+  #top {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom));
   }
+}
+
+.nowrap {
+  white-space: nowrap;
 }

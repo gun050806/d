@@ -9,7 +9,7 @@
   <link rel="preload" href="fonts/Pretendard-Regular.subset.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="fonts/Pretendard-Bold.subset.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="fonts/LibreBaskerville-Italic.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="style.css?v=1112g" />
+  <link rel="stylesheet" href="style.css?v=1112i" />
 </head>
 <body>
   <header class="header">
@@ -143,7 +143,7 @@
 
         <div class="place">
           <div>
-            <p class="place__addr">경기도 화성시 동탄구 동탄순환대로 127-23<br />우성에듀파크 5층 502호</p>
+            <p class="place__addr">경기도 화성시 동탄구 동탄순환대로 <span class="nowrap">127-23</span><br />우성에듀파크 5층 502호</p>
             <p class="place__hint">호수공원 건너편 우성에듀파크상가 5층</p>
 
             <dl class="place__info">
@@ -160,6 +160,8 @@
                 <dd>오후 2시 ~ 밤 10시</dd>
               </div>
             </dl>
+            <!-- 학원 정보를 받으면 주석을 풀고 채워 주세요 -->
+            <!-- <p class="place__hint">대표 ○○○ · 학원등록번호 제○○○○호 · 사업자등록번호 000-00-00000</p> -->
           </div>
 
           <div class="place__links">
@@ -171,25 +173,12 @@
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="wrap">
-      <p><strong>더 로직 고등영어</strong></p>
-      <p>경기도 화성시 동탄구 동탄순환대로 127-23 우성에듀파크 5층 502호</p>
-      <p>상담 010-5273-8792 · 대표 0507-1398-8794</p>
-      <p>운영 오후 2시 ~ 밤 10시</p>
-      <!-- 학원 정보를 받으면 아래 줄의 주석을 풀고 채워 주세요 -->
-      <!-- <p>대표 ○○○ · 학원등록번호 제○○○○호 · 사업자등록번호 000-00-00000</p> -->
-      <p class="footer__copy">© <span id="year"></span> The Logic</p>
-    </div>
-  </footer>
-
   <!-- 휴대폰 화면 하단 고정 버튼 -->
   <div class="callbar">
     <a href="tel:010-5273-8792">전화 상담</a>
     <a href="sms:010-5273-8792">문자 문의</a>
   </div>
 
-  <script src="script.js"></script>
   <script type="module">
     // 관리 페이지에서 쓴 학원 소식을 목록 맨 위에 보여줘요. (Firebase 설정 전에는 아무 일도 안 해요)
     import { ready, db, collection, getDocs, esc, safeUrl } from './js/fb.js';
