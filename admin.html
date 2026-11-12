@@ -7,7 +7,7 @@
   <title>관리 | 더 로직 고등영어</title>
   <meta name="robots" content="noindex" />
   <link rel="preload" href="fonts/Pretendard-Regular.subset.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="style.css?v=1112p" />
+  <link rel="stylesheet" href="style.css?v=1112q" />
 </head>
 <body class="member">
   <header class="header">
@@ -30,6 +30,7 @@
       <div id="admin" hidden>
         <div class="tabs tabs--wide" role="tablist">
           <button class="tab is-active" data-tab="users">회원 <span class="count" id="pending-count"></span></button>
+          <button class="tab" data-tab="consults">상담 <span class="count" id="consult-count"></span></button>
           <button class="tab" data-tab="events">일정</button>
           <button class="tab" data-tab="materials">자료</button>
           <button class="tab" data-tab="records">성적·과제</button>
@@ -45,6 +46,20 @@
           <div class="section-box">
             <h2>원생</h2>
             <div id="student-list"></div>
+          </div>
+        </section>
+
+        <!-- 상담 신청 -->
+        <section data-panel="consults" hidden>
+          <div class="section-box">
+            <h2>새 상담 신청</h2>
+            <p class="form__help">홈페이지 '상담 신청'으로 들어온 신청이에요. 연락드린 뒤 '연락 완료'를 눌러 주세요.</p>
+            <div id="consult-new"></div>
+          </div>
+          <div class="section-box">
+            <h2>연락 완료</h2>
+            <p class="form__help">상담이 끝나면 삭제해 주세요. 신청일로부터 6개월이 지난 신청은 이 페이지를 열 때 자동으로 지워져요.</p>
+            <div id="consult-done"></div>
           </div>
         </section>
 
@@ -248,6 +263,52 @@
       filter.value = cur;
     }
 
+    // ===== 상담 신청 =====
+    const KEEP_DAYS = 183; // 개인정보 처리방침: 늦어도 신청일로부터 6개월 뒤 삭제
+    const whenOf = (c) => (c.createdAt && c.createdAt.toDate ? c.createdAt.toDate() : null);
+    const fmtWhen = (d) => d ? `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` : '';
+
+    async function loadConsults() {
+      const newEl = document.getElementById('consult-new');
+      const doneEl = document.getElementById('consult-done');
+      let items;
+      try { items = await list('consults'); } catch (err) { fail(newEl, err); return; }
+
+      // 보관 기간이 지난 신청은 지워요.
+      const limit = Date.now() - KEEP_DAYS * 24 * 60 * 60 * 1000;
+      const old = items.filter((c) => whenOf(c) && whenOf(c).getTime() < limit);
+      await Promise.all(old.map((c) => deleteDoc(doc(db, 'consults', c.id)).catch(() => {})));
+      items = items.filter((c) => !old.includes(c))
+        .sort((a, b) => (whenOf(b) || 0) - (whenOf(a) || 0));
+
+      const fresh = items.filter((c) => c.status !== 'done');
+      const done = items.filter((c) => c.status === 'done');
+      document.getElementById('consult-count').textContent = fresh.length ? fresh.length : '';
+
+      const row = (c, actions) => `<li>
+        <div class="list__main">
+          <strong>${esc(c.name)}</strong> <span class="muted">${esc(c.school)} ${esc(c.grade)} · ${esc(c.who)}</span><br />
+          <a href="tel:${esc(c.phone)}">${esc(c.phone)}</a> <span class="muted">· ${esc(c.time)} · ${esc(fmtWhen(whenOf(c)))} 신청</span>
+          ${c.memo ? `<p class="memo-text">${esc(c.memo)}</p>` : ''}
+        </div>
+        <div class="list__actions">${actions(c)}</div>
+      </li>`;
+      const del = (c) => `<button class="btn btn--line btn--sm" data-act="del" data-id="${esc(c.id)}">삭제</button>`;
+
+      newEl.innerHTML = fresh.length ? `<ul class="list">${fresh.map((c) => row(c, (x) => `
+        <button class="btn btn--dark btn--sm" data-act="done" data-id="${esc(x.id)}">연락 완료</button>${del(x)}`)).join('')}</ul>`
+        : '<p class="muted">새 신청이 없어요.</p>';
+      doneEl.innerHTML = done.length ? `<ul class="list">${done.map((c) => row(c, del)).join('')}</ul>`
+        : '<p class="muted">없어요.</p>';
+
+      const handlers = {
+        done: { run: async (id) => { await updateDoc(doc(db, 'consults', id), { status: 'done' }); await loadConsults(); } },
+        del: { confirm: '이 상담 신청을 삭제할까요? 되돌릴 수 없어요.', run: async (id) => { await deleteDoc(doc(db, 'consults', id)); await loadConsults(); } }
+      };
+      bindActions(newEl, handlers);
+      bindActions(doneEl, handlers);
+    }
+
     // ===== 자료 =====
     async function loadMaterials() {
       const el = document.getElementById('material-list');
@@ -431,6 +492,7 @@
       document.getElementById('admin').hidden = false;
       document.querySelectorAll('input[type=date]').forEach((i) => { i.value = today(); });
       await loadUsers();
+      loadConsults();
       loadEvents();
       loadMaterials();
       loadRecords();

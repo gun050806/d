@@ -34,12 +34,15 @@
 - `materials`: title, target(전체/고1/고2/고3), url, desc, date
 - `records`: uid, kind, title, score, memo, date (학생 본인 + 관리자만 읽기)
 - `posts`: tag, title, url, date (공개 읽기, 홈페이지 "학원 소식"에 표시)
+- `consults`: name, phone, school, grade(예비고1/고1~3), who(학부모/학생), time, memo, status(new|done), createdAt — 홈페이지 "상담 신청"에서 누구나 쓰기(규칙으로 형식 검사), 관리자만 읽기. 관리 페이지 '상담' 탭에서 확인. 6개월 지난 건 관리 페이지 열 때 자동 삭제 (처리방침과 맞춤). 새 신청 알림 기능은 없음(무료 플랜) → 원장님이 관리 페이지에서 확인
 - `events`: date, time, kind(수업/보강/시험/휴원/기타), title, school(전체/이솔고/서연고/정현고), grade(전체/고1~3), memo — 원생 읽기, 관리자 쓰기. 원생 페이지에서 내 학교·학년 것만 걸러 보여 줌
 - `users/{uid}/plans`: title, date, time — 학생 본인만 읽기·쓰기 (원장님도 못 봄)
 - 달력 공통 코드: `js/calendar.js` (my.html·admin.html에서 사용)
 - 관리자 지정은 콘솔에서 users 문서의 role을 `admin`으로 직접 수정
 
 ## 진행 상황 (2026-11-12)
+- 2026-11-12: 카톡 미리보기(img/og.png, 원본 img/og-source.html), sitemap.xml, 상담 신청서 추가
+- 검색 등록(네이버 서치어드바이저·구글 서치 콘솔) 아직 안 함 — 인증 태그 받으면 index.html head에 넣기. 도메인 구입 검토 중
 - 완료: 홈페이지 배포, Firebase 로그인(이메일/비밀번호)·Firestore(서울)·보안 규칙·승인 도메인
 - 원장님 계정 admin 지정 및 관리 페이지 접속 확인 완료 (2026-11-12)
 

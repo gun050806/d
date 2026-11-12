@@ -68,6 +68,22 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // 상담 신청: 누구나 홈페이지에서 보낼 수 있고, 보는 건 원장님만 해요.
+    match /consults/{id} {
+      allow read, update, delete: if isAdmin();
+      allow create: if request.resource.data.keys().hasOnly(['name', 'phone', 'school', 'grade', 'who', 'time', 'memo', 'status', 'createdAt'])
+        && shortText(request.resource.data.name, 20)
+        && request.resource.data.phone is string
+        && request.resource.data.phone.matches('^01[016789]-[0-9]{3,4}-[0-9]{4}$')
+        && shortText(request.resource.data.school, 20)
+        && request.resource.data.grade in ['예비고1', '고1', '고2', '고3']
+        && request.resource.data.who in ['학부모', '학생']
+        && shortText(request.resource.data.time, 20)
+        && request.resource.data.memo is string && request.resource.data.memo.size() <= 500
+        && request.resource.data.status == 'new'
+        && request.resource.data.createdAt == request.time;
+    }
+
     // 학원 소식: 누구나 보고, 원장님만 써요.
     match /posts/{id} {
       allow read: if true;

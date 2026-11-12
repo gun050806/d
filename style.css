@@ -575,8 +575,21 @@ a {
   width: auto;
   height: 38px;
 }
+.field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  font: inherit;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--ink);
+  resize: vertical;
+}
 .field input:focus,
-.field select:focus {
+.field select:focus,
+.field textarea:focus {
   outline: 2px solid var(--ink);
   outline-offset: -1px;
 }
@@ -909,6 +922,41 @@ a {
   text-underline-offset: 3px;
 }
 
+/* 상담 신청 */
+.consult {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 48px;
+  padding-top: 28px;
+  border-top: 2px solid var(--ink);
+}
+.consult__lead {
+  margin: 0;
+  line-height: 1.8;
+  color: #333;
+}
+.consult__lead a {
+  font-weight: 700;
+  white-space: nowrap;
+}
+.consult .agree {
+  background: var(--gray);
+}
+/* 자동 등록 프로그램 막기용 칸 */
+.hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.memo-text {
+  margin: 6px 0 0;
+  font-weight: 400;
+  white-space: pre-wrap;
+  color: #444;
+}
+
 /* 휴대폰 하단 고정 버튼 (PC에서는 숨김) */
 .callbar {
   display: none;
@@ -971,6 +1019,10 @@ a {
   }
   .table th {
     width: 96px;
+  }
+  .consult {
+    grid-template-columns: 1fr;
+    gap: 24px;
   }
   .place {
     flex-direction: column;

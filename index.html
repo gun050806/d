@@ -20,7 +20,7 @@
   <link rel="preload" href="fonts/Pretendard-Regular.subset.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="fonts/Pretendard-Bold.subset.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="fonts/LibreBaskerville-Italic.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="style.css?v=1112p" />
+  <link rel="stylesheet" href="style.css?v=1112q" />
 </head>
 <body>
   <header class="header">
@@ -33,6 +33,7 @@
         <a href="#class">수업 안내</a>
         <a href="#result">내신 결과</a>
         <a href="#news">학원 소식</a>
+        <a href="#consult">상담 신청</a>
         <a href="#map">오시는 길</a>
         <a href="https://m.blog.naver.com/audtjr3956" target="_blank" rel="noopener">블로그</a>
         <a href="login.html">원생 로그인</a>
@@ -160,8 +161,99 @@
       </div>
     </section>
 
+    <!-- 상담 신청 (관리 페이지 '상담' 탭에 쌓여요) -->
+    <section class="block" id="consult">
+      <div class="wrap">
+        <div class="block__head">
+          <h2>상담 신청</h2>
+        </div>
+
+        <div class="consult">
+          <p class="consult__lead">남겨 주시면 원장이 직접 연락드립니다.<br />바로 상담을 원하시면 <a href="tel:010-5273-8792">010-5273-8792</a>로 전화 주세요.</p>
+
+          <form class="form consult__form" id="consult-form" novalidate>
+            <div class="field-row">
+              <label class="field">
+                <span>학생 이름</span>
+                <input type="text" name="name" maxlength="20" autocomplete="off" required />
+              </label>
+              <label class="field">
+                <span>연락처</span>
+                <input type="tel" name="phone" inputmode="numeric" maxlength="13" placeholder="010-0000-0000" autocomplete="tel" required />
+              </label>
+            </div>
+            <div class="field-row">
+              <label class="field">
+                <span>학교</span>
+                <select name="school" required>
+                  <option value="">선택</option>
+                  <option>이솔고</option>
+                  <option>서연고</option>
+                  <option>정현고</option>
+                  <option value="기타">기타 (직접 입력)</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>학년</span>
+                <select name="grade" required>
+                  <option value="">선택</option>
+                  <option>예비고1</option>
+                  <option>고1</option>
+                  <option>고2</option>
+                  <option>고3</option>
+                </select>
+              </label>
+            </div>
+            <label class="field" data-etc hidden>
+              <span>학교 이름</span>
+              <input type="text" name="schoolEtc" maxlength="20" placeholder="예: 동탄중" />
+            </label>
+            <div class="field-row">
+              <label class="field">
+                <span>신청하시는 분</span>
+                <select name="who">
+                  <option>학부모</option>
+                  <option>학생</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>연락 받기 편한 시간</span>
+                <select name="time">
+                  <option>언제든 괜찮아요</option>
+                  <option>평일 오후</option>
+                  <option>평일 저녁</option>
+                  <option>주말</option>
+                </select>
+              </label>
+            </div>
+            <label class="field">
+              <span>궁금한 점 (선택)</span>
+              <textarea name="memo" rows="4" maxlength="500" placeholder="최근 성적, 원하는 수업 시간 등"></textarea>
+            </label>
+            <!-- 자동 등록 프로그램 막기용 칸 (사람에게는 안 보여요) -->
+            <label class="hp" aria-hidden="true">홈페이지<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+
+            <div class="agree">
+              <p><strong>개인정보 수집·이용 동의</strong></p>
+              <ul>
+                <li>수집 항목: 학생 이름, 학교, 학년, 연락처, 문의 내용</li>
+                <li>이용 목적: 상담 연락</li>
+                <li>보관 기간: 상담이 끝나면 삭제하며, 늦어도 신청일로부터 6개월 뒤 삭제</li>
+                <li>동의하지 않으셔도 되며, 이 경우 전화로 상담하실 수 있습니다.</li>
+                <li>만 14세 미만 학생은 보호자가 신청해 주세요. <a href="privacy.html">개인정보 처리방침</a></li>
+              </ul>
+              <label class="check"><input type="checkbox" name="agree" /> 동의합니다</label>
+            </div>
+
+            <p class="msg" data-msg></p>
+            <button class="btn btn--dark btn--full" type="submit">상담 신청하기</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
     <!-- 오시는 길 -->
-    <section class="block" id="map">
+    <section class="block block--gray" id="map">
       <div class="wrap">
         <div class="block__head">
           <h2>오시는 길</h2>
@@ -208,8 +300,65 @@
   </div>
 
   <script type="module">
+    import {
+      ready, db, collection, getDocs, addDoc, serverTimestamp, esc, safeUrl, errMsg
+    } from './js/fb.js';
+
+    // ===== 상담 신청 =====
+    const form = document.getElementById('consult-form');
+    const etc = form.querySelector('[data-etc]');
+    const say = (text, ok = false) => {
+      const el = form.querySelector('[data-msg]');
+      el.textContent = text;
+      el.className = 'msg' + (text ? (ok ? ' msg--ok' : ' msg--error') : '');
+    };
+
+    form.school.addEventListener('change', () => { etc.hidden = form.school.value !== '기타'; });
+
+    // 숫자만 남기고 010-0000-0000 모양으로 바꿔요.
+    const fmtPhone = (v) => {
+      const d = String(v).replace(/\D/g, '').slice(0, 11);
+      if (d.length < 4) return d;
+      if (d.length < 8) return `${d.slice(0, 3)}-${d.slice(3)}`;
+      const mid = d.length === 11 ? 4 : 3;
+      return `${d.slice(0, 3)}-${d.slice(3, 3 + mid)}-${d.slice(3 + mid)}`;
+    };
+    form.phone.addEventListener('input', () => { form.phone.value = fmtPhone(form.phone.value); });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (form.website.value) return; // 자동 등록 프로그램
+      const name = form.name.value.trim();
+      const phone = fmtPhone(form.phone.value);
+      const school = form.school.value === '기타' ? form.schoolEtc.value.trim() : form.school.value;
+      if (!name) return say('학생 이름을 입력해 주세요.');
+      if (!/^01[016789]-\d{3,4}-\d{4}$/.test(phone)) return say('연락처를 확인해 주세요. (예: 010-1234-5678)');
+      if (!school) return say('학교를 선택해 주세요.');
+      if (!form.grade.value) return say('학년을 선택해 주세요.');
+      if (!form.agree.checked) return say('개인정보 수집·이용에 동의해 주세요.');
+      if (!ready) return say('지금은 신청을 받을 수 없어요. 전화로 문의해 주세요.');
+
+      const btn = form.querySelector('[type=submit]');
+      btn.disabled = true;
+      say('');
+      try {
+        await addDoc(collection(db, 'consults'), {
+          name, phone, school, grade: form.grade.value, who: form.who.value,
+          time: form.time.value, memo: form.memo.value.trim(), status: 'new', createdAt: serverTimestamp()
+        });
+        form.reset();
+        etc.hidden = true;
+        say('신청되었습니다. 확인 후 연락드릴게요.', true);
+      } catch (err) {
+        const text = err && err.code === 'permission-denied' ? '신청을 보내지 못했어요.' : errMsg(err);
+        say(text + ' 급하시면 010-5273-8792로 전화 주세요.');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // ===== 학원 소식 =====
     // 관리 페이지에서 쓴 학원 소식을 목록 맨 위에 보여줘요. (Firebase 설정 전에는 아무 일도 안 해요)
-    import { ready, db, collection, getDocs, esc, safeUrl } from './js/fb.js';
     if (ready) {
       try {
         const snap = await getDocs(collection(db, 'posts'));
