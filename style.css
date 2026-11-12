@@ -334,22 +334,36 @@ a {
   color: var(--point);
 }
 
-/* 수업 안내 소개 */
-.lead {
-  max-width: 720px;
-  margin: 0 0 36px;
-  color: #333;
+/* 수업 안내 키워드 */
+.keys {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0 24px;
+  margin: 0 0 40px;
 }
-.lead p {
-  margin: 0 0 10px;
+.keys > div {
+  padding: 16px 0 4px;
+  border-top: 2px solid var(--ink);
 }
-.lead__big {
-  margin-bottom: 18px !important;
-  font-size: clamp(1.25rem, 2.6vw, 1.6rem);
+.keys dt {
+  font-size: 1.3rem;
   font-weight: 700;
-  line-height: 1.5;
   letter-spacing: -0.02em;
-  color: var(--ink);
+}
+.keys dd {
+  margin: 6px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--sub);
+}
+@media (max-width: 760px) {
+  .keys {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 16px;
+  }
+  .keys dt {
+    font-size: 1.15rem;
+  }
 }
 
 /* 수업 안내 표 */
