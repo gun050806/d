@@ -337,7 +337,7 @@ a {
 /* 수업 안내 키워드 */
 .keys {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 0 24px;
   margin: 0 0 40px;
 }
@@ -358,8 +358,22 @@ a {
 }
 @media (max-width: 760px) {
   .keys {
-    grid-template-columns: 1fr 1fr;
-    gap: 20px 16px;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .keys > div {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    align-items: baseline;
+    gap: 12px;
+    padding: 14px 0;
+    border-top-width: 1px;
+  }
+  .keys > div:first-child {
+    border-top-width: 2px;
+  }
+  .keys dd {
+    margin: 0;
   }
   .keys dt {
     font-size: 1.15rem;
