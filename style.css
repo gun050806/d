@@ -158,11 +158,8 @@ a {
   background: var(--dark);
   color: #fff;
 }
-.intro__inner {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 64px;
-  align-items: end;
+.intro__inner > * {
+  max-width: 720px;
 }
 .intro__logo {
   display: flex;
@@ -187,6 +184,12 @@ a {
   line-height: 1.45;
   letter-spacing: -0.02em;
   color: rgba(255, 255, 255, 0.92);
+}
+
+.intro__sub {
+  margin: 12px 0 0;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .result {
@@ -236,26 +239,6 @@ a {
 }
 .btn--ghost:hover {
   background: rgba(255, 255, 255, 0.08);
-}
-
-.card {
-  margin: 0;
-  border-top: 2px solid rgba(255, 255, 255, 0.85);
-}
-.card > div {
-  display: grid;
-  grid-template-columns: 56px 1fr;
-  gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  font-size: 0.95rem;
-}
-.card dt {
-  color: rgba(255, 255, 255, 0.55);
-}
-.card dd {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.92);
 }
 
 /* 공통 블록 */
@@ -759,10 +742,6 @@ a {
   }
   .brand .script {
     font-size: 1.25rem;
-  }
-  .intro__inner {
-    grid-template-columns: 1fr;
-    gap: 40px;
   }
   .intro__buttons .btn {
     flex: 1 1 100%;
