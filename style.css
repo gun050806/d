@@ -183,12 +183,6 @@ a {
   letter-spacing: -0.02em;
 }
 
-.intro__sub {
-  margin: 12px 0 0;
-  font-size: 0.95rem;
-  color: var(--sub);
-}
-
 .result {
   display: flex;
   align-items: baseline;
