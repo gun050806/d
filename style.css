@@ -480,6 +480,79 @@ h1, h2, h3 {
   color: var(--text-muted);
 }
 
+/* 학원 실적 */
+.results__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+.trophy {
+  position: relative;
+  overflow: hidden;
+  padding: 36px 32px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+  color: #fff;
+}
+.trophy__icon {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 72px;
+  opacity: 0.9;
+}
+.trophy p {
+  margin: 0;
+}
+.trophy__school {
+  font-weight: 700;
+  color: var(--accent);
+}
+.trophy__title {
+  margin: 4px 0 !important;
+  font-size: clamp(1.6rem, 3.4vw, 2.2rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.trophy__sub {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+}
+.quote {
+  margin: 28px 0 0;
+  padding: 24px 28px;
+  border-left: 4px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text);
+}
+.quote cite {
+  display: block;
+  margin-top: 10px;
+  font-style: normal;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+.results__prev {
+  margin: 20px 0 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+.results__more {
+  margin-top: 28px;
+}
+.btn--navy {
+  background: var(--navy);
+  color: #fff;
+}
+.btn--navy:hover {
+  background: var(--navy-deep);
+}
+.footer a {
+  text-decoration: underline;
+}
+
 /* 상담 문의 띠 */
 .cta {
   padding: 64px 0;
@@ -524,6 +597,23 @@ h1, h2, h3 {
   place-items: center;
   color: var(--text-muted);
   overflow: hidden;
+}
+.map:hover {
+  border-color: var(--navy);
+}
+.map__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+.map__inner strong {
+  color: var(--navy);
+  font-size: 1.15rem;
+}
+.map__pin {
+  font-size: 2.2rem;
 }
 .map iframe {
   width: 100%;
@@ -666,7 +756,8 @@ h1, h2, h3 {
   }
   .steps,
   .teachers,
-  .location {
+  .location,
+  .results__grid {
     grid-template-columns: 1fr;
   }
   .teacher {
@@ -679,8 +770,15 @@ h1, h2, h3 {
     font-size: 38px;
   }
   .cta__buttons,
-  .cta__buttons .btn {
+  .cta__buttons .btn,
+  .results__more .btn {
     width: 100%;
+  }
+  .trophy {
+    padding: 28px 24px;
+  }
+  .trophy__icon {
+    font-size: 56px;
   }
   .map {
     min-height: 220px;
