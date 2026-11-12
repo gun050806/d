@@ -1,23 +1,3 @@
-// ===== 다크 모드 전환 =====
-const root = document.documentElement;
-const themeToggle = document.getElementById('theme-toggle');
-
-function currentTheme() {
-  const set = root.getAttribute('data-theme');
-  if (set) return set;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-
-themeToggle.addEventListener('click', () => {
-  const next = currentTheme() === 'dark' ? 'light' : 'dark';
-  root.setAttribute('data-theme', next);
-  try {
-    localStorage.setItem('theme', next);
-  } catch (e) {
-    // 저장이 막혀 있어도 전환은 그대로 동작해요.
-  }
-});
-
 // ===== 모바일 메뉴 열고 닫기 =====
 const menuToggle = document.getElementById('menu-toggle');
 const nav = document.getElementById('nav');
