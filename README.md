@@ -26,7 +26,7 @@ HTML, CSS, JavaScript로 만든 더로직 고등영어(동탄) 홈페이지입�
 ## 지도 넣기
 
 카카오맵이나 네이버 지도에서 학원 위치를 찾은 뒤 **공유 → 지도 퍼가기(HTML 태그)** 코드를 복사해서
-`index.html`의 `<a class="map ...">` 부분을 `<div class="map">퍼가기 코드</div>`로 바꿔 넣으세요.
+`index.html`의 "오시는 길" 부분(`<div class="place">` 바로 아래)에 붙여 넣으세요.
 
 ## 색상 바꾸기
 
