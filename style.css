@@ -1,6 +1,26 @@
+/* 글꼴: Pretendard (fonts 폴더, SIL Open Font License) */
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/Pretendard-Regular.subset.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 600;
+  font-display: swap;
+  src: url("fonts/Pretendard-SemiBold.subset.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 700;
+  font-display: swap;
+  src: url("fonts/Pretendard-Bold.subset.woff2") format("woff2");
+}
+
 /* 색상 — 여기 값만 바꾸면 전체 색이 바뀌어요 */
 :root {
-  --ink: #111111;      /* 글자, 버튼 */
+  --ink: #1a1a1a;      /* 글자, 버튼 */
   --sub: #666666;      /* 보조 글자 */
   --line: #e5e5e5;     /* 구분선 */
   --gray: #f7f7f5;     /* 회색 배경 */
@@ -22,7 +42,8 @@ body {
   font-family: "Pretendard", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   background: #fff;
   color: var(--ink);
-  line-height: 1.65;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
   word-break: keep-all;
   -webkit-font-smoothing: antialiased;
 }
@@ -53,20 +74,9 @@ a {
   gap: 40px;
 }
 .brand {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-.brand__ko {
   font-size: 1.15rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-.brand__en {
-  font-family: Georgia, "Times New Roman", serif;
-  font-style: italic;
-  font-size: 0.9rem;
-  color: var(--sub);
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 .nav {
   display: flex;
@@ -125,15 +135,14 @@ a {
 .intro__label {
   margin: 0 0 20px;
   font-size: 0.95rem;
-  font-weight: 600;
   color: var(--sub);
 }
 .intro__title {
   margin: 0;
-  font-size: clamp(2.1rem, 5.4vw, 3.6rem);
-  font-weight: 800;
-  line-height: 1.25;
-  letter-spacing: -0.045em;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.32;
+  letter-spacing: -0.025em;
 }
 .intro__title em {
   font-style: normal;
@@ -186,9 +195,9 @@ a {
 }
 .block__head h2 {
   margin: 0;
-  font-size: 1.6rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 .more {
   font-size: 0.92rem;

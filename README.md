@@ -9,6 +9,7 @@ HTML, CSS, JavaScript로 만든 더로직 고등영어(동탄) 홈페이지입�
 | `index.html` | 페이지 내용 (1학기 결과, 학원 소식, 수업 안내, 오시는 길) |
 | `style.css` | 디자인 (색상, 글꼴, 배치) |
 | `script.js` | 하단 연도 자동 표시 |
+| `fonts/` | Pretendard 글꼴 파일 (SIL Open Font License, `fonts/LICENSE.txt`) |
 
 ## 보는 방법
 
